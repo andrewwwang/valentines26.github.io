@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will you be my Valentine?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --rose: #e8a0a8;
+      --rose-deep: #c76b7a;
+      --blush: #f5d0d5;
+      --cream: #fef9f5;
+      --gold: #d4a574;
+      --text: #3d2c2e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(160deg, var(--cream) 0%, var(--blush) 50%, #f0c4c9 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      transition: opacity 0.6s ease;
+    }
+
+    .screen.hidden {
+      display: none;
+    }
+
+    .screen.exiting {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ========== SCREEN 1: Slideshow ========== */
+    #screen1 {
+      padding: 0;
+      justify-content: flex-end;
+      position: relative;
+    }
+
+    #screen1 .slideshow-container {
+     width: 600px;           /* Control the width here */
+     height: 850px;          /* Control the height here */
+     margin: 20px auto;      /* Centers it and adds spacing */
+     border: 8px solid #fff; /* White border like a photo */
+     border-radius: 10px;
+     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+     overflow: hidden;       /* Keeps images inside the borders */
+     position: relative;
+    }
+
+    #screen1 .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    #screen1 .slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    #screen1 .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #screen1 .continue-btn {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 2rem;
+    }
+
+    .continue-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.9rem 2.5rem;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--rose-deep), var(--rose));
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(199, 107, 122, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(199, 107, 122, 0.5);
+    }
+
+    /* ========== SCREEN 2: Will you be my Valentine ========== */
+    #screen2 {
+      position: relative;
+      text-align: center;
+    }
+
+    #screen2 .valentine-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.3;
+    }
+
+    #screen2 .buttons-wrap {
+      display: flex;
+      flex-direction: row;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .val-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      border: none;
+    }
+
+    .val-btn.yes {
+      background: linear-gradient(135deg, var(--rose-deep), var(--rose));
+      color: white;
+      box-shadow: 0 8px 24px rgba(199, 107, 122, 0.4);
+    }
+
+    .val-btn.yes:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(199, 107, 122, 0.5);
+    }
+
+    #screen2 .no-btn-spacer {
+      display: inline-block;
+      width: 100px;
+      height: 52px;
+      visibility: hidden;
+    }
+
+    .val-btn.no {
+      background: linear-gradient(135deg, #a0a0a0, #888);
+      color: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      position: fixed;
+      z-index: 10;
+    }
+
+    /* ========== SCREEN 2.5: Baccarat ========== */
+    #screen2_5 {
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    #screen2_5 .baccarat-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .baccarat-board {
+      display: flex;
+      align-items: stretch;
+      width: 100%;
+      max-width: 560px;
+      min-height: 200px;
+      background: linear-gradient(180deg, #2a4a2a 0%, #1e361e 100%);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+      overflow: hidden;
+      border: 3px solid var(--gold);
+    }
+
+    .baccarat-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .baccarat-side .side-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.05em;
+    }
+
+    .baccarat-slots {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-slot {
+      width: 72px;
+      height: 100px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 8px;
+      border: 2px dashed rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .card-slot.filled {
+      border-style: solid;
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .card-slot .card-face {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1a1a;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .card-slot .card-face.red { color: #b52e2e; }
+    .card-slot.filled .card-face { display: flex; }
+    .card-slot .card-face .suit { font-size: 1.5rem; }
+
+    .baccarat-divider {
+      width: 3px;
+      background: linear-gradient(180deg, transparent, var(--gold), transparent);
+      flex-shrink: 0;
+    }
+
+    .baccarat-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .baccarat-buttons button {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+
+    .baccarat-buttons button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .baccarat-buttons button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .bet-player {
+      background: linear-gradient(135deg, #3d6b3d, #2d522d);
+      color: #fff;
+      border: 2px solid #4a7c4a;
+    }
+
+    .bet-banker {
+      background: linear-gradient(135deg, #4a5a7a, #3a4a6a);
+      color: #fff;
+      border: 2px solid #5a6a8a;
+    }
+
+    .card-slot.deal-in .card-face {
+      animation: card-deal 0.4s ease-out forwards;
+    }
+
+    @keyframes card-deal {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Win popup overlay */
+    .win-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+
+    .win-popup-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .win-popup {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--cream);
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+      text-align: center;
+      border: 3px solid var(--gold);
+      cursor: grab;
+      user-select: none;
+    }
+
+    .win-popup:active {
+      cursor: grabbing;
+    }
+
+    .win-popup h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+
+    .win-popup .win-next-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.75rem 1.75rem;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--rose-deep), var(--rose));
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .win-popup .win-next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(199, 107, 122, 0.4);
+    }
+
+    /* Morph overlay (cards flying to date) */
+    .morph-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1500;
+    }
+
+    .morph-card {
+      position: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1), top 0.9s cubic-bezier(0.22, 1, 0.36, 1), width 0.9s cubic-bezier(0.22, 1, 0.36, 1), height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+    }
+
+    .morph-card .card-layer,
+    .morph-card .digit-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.35s ease;
+    }
+
+    .morph-card .digit-layer {
+      opacity: 0;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: inherit;
+      color: var(--rose-deep);
+    }
+
+    .morph-card.show-digit .card-layer { opacity: 0; }
+    .morph-card.show-digit .digit-layer { opacity: 1; }
+
+    .morph-card .card-layer .rank { font-size: 0.45em; font-weight: 700; }
+    .morph-card .card-layer .suit { font-size: 0.6em; }
+    .morph-card .card-layer.red { color: #b52e2e; }
+
+    /* Screen 3 date slots for morph targets */
+    #screen3 .date-digits-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.1em;
+    }
+
+    #screen3 .date-digit-slot {
+      display: inline-block;
+      min-width: 1.1em;
+      text-align: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #screen3 .date-reminder.show-date .date-digit-slot.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    #screen3 .date-sep {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #screen3 .date-reminder.show-date .date-sep {
+      opacity: 1;
+    }
+
+    /* ========== SCREEN 3: Happy Valentine's ========== */
+    #screen3 {
+      text-align: center;
+    }
+
+    #screen3 .message {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    #screen3 .bouquet-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+
+    #screen3 .bouquet-wrap {
+      width: 220px;
+      height: 260px;
+      position: relative;
+    }
+
+    #screen3 .bouquet-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    #screen3 .date-reminder {
+      font-size: 1.1rem;
+      color: var(--rose-deep);
+      margin-bottom: 2rem;
+    }
+
+    .calendar-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.85rem 1.8rem;
+      border: 2px solid var(--rose-deep);
+      border-radius: 50px;
+      background: transparent;
+      color: var(--rose-deep);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+
+    .calendar-btn:hover {
+      background: var(--rose-deep);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Confetti / hearts container */
+    .celebration {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0.9;
+      animation: float-up 4s ease-in forwards;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      animation: confetti-fall 3s ease-in forwards;
+    }
+
+    @keyframes float-up {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Screen 1: Slideshow -->
+  <section id="screen1" class="screen">
+    <div class="slideshow-container">
+      <!-- Replace src with your own photo URLs or local paths -->
+      <div class="slide active"><img src="photo1.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo3.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo5.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo6.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo7.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo8.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo9.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo10.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo11.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo12.jpg" alt="Us" /></div>
+      <div class="slide"><img src="photo13.jpg" alt="Us" /></div>
+    </div>
+    <button type="button" class="continue-btn" id="continueBtn">Continue</button>
+  </section>
+
+  <!-- Screen 2: Will you be my Valentine? -->
+  <section id="screen2" class="screen hidden">
+    <h1 class="valentine-title">Will you be my Valentine?</h1>
+    <div class="buttons-wrap">
+      <button type="button" class="val-btn yes" id="yesBtn">Yes!</button>
+      <span class="no-btn-spacer" id="noBtnSpacer" aria-hidden="true"></span>
+      <button type="button" class="val-btn no" id="noBtn">No</button>
+    </div>
+  </section>
+
+  <!-- Screen 2.5: Baccarat -->
+  <section id="screen2_5" class="screen hidden">
+    <h2 class="baccarat-title">Place your bet</h2>
+    <div class="baccarat-board">
+      <div class="baccarat-side" data-side="player">
+        <span class="side-label">Player</span>
+        <div class="baccarat-slots">
+          <div class="card-slot" data-slot="0" id="playerSlot0"><span class="card-face"></span></div>
+          <div class="card-slot" data-slot="1" id="playerSlot1"><span class="card-face"></span></div>
+        </div>
+      </div>
+      <div class="baccarat-divider" aria-hidden="true"></div>
+      <div class="baccarat-side" data-side="banker">
+        <span class="side-label">Banker</span>
+        <div class="baccarat-slots">
+          <div class="card-slot" data-slot="0" id="bankerSlot0"><span class="card-face"></span></div>
+          <div class="card-slot" data-slot="1" id="bankerSlot1"><span class="card-face"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="baccarat-buttons">
+      <button type="button" class="bet-player" id="betPlayerBtn">Bet on Player</button>
+      <button type="button" class="bet-banker" id="betBankerBtn">Bet on Banker</button>
+    </div>
+  </section>
+
+  <!-- Win popup (Screen 2.5) -->
+  <div class="win-popup-overlay" id="winPopupOverlay" aria-hidden="true">
+    <div class="win-popup">
+      <h3 id="winPopupText">Natural 9, you win! Player won</h3>
+      <button type="button" class="win-next-btn" id="winNextBtn">Next</button>
+    </div>
+  </div>
+
+  <!-- Morph overlay (cards → date digits) -->
+  <div class="morph-overlay" id="morphOverlay" aria-hidden="true"></div>
+
+  <!-- Screen 3: Happy Valentine's -->
+  <section id="screen3" class="screen hidden">
+    <!-- Replace the src below with your bouquet photo: e.g. src="bouquet.jpg" (file in this folder) or a full URL -->
+    <div class="bouquet-row">
+      <div class="bouquet-wrap" id="bouquetWrap">
+        <img src="bouquet.png" alt="Bouquet of flowers" />
+      </div>
+    </div>
+    <p class="message">Happy Valentines Day Srahrah!</p>
+    <p class="date-reminder" id="dateReminder">Please keep <span class="date-digits-wrap"><span class="date-digit-slot" id="morphTarget0">0</span><span class="date-digit-slot" id="morphTarget2a">2</span><span class="date-sep">/</span><span class="date-digit-slot" id="morphTarget2b">2</span><span class="date-digit-slot" id="morphTarget7">7</span></span> dinner free 💕</p>
+    <a href="#" class="calendar-btn" id="calendarBtn" target="_blank" rel="noopener">Add to calendar – Feb 27, 2026</a>
+  </section>
+
+  <div class="celebration" id="celebration" aria-hidden="true"></div>
+
+  <script>
+    // ---------- Screen refs ----------
+    const screen1 = document.getElementById('screen1');
+    const screen2 = document.getElementById('screen2');
+    const screen2_5 = document.getElementById('screen2_5');
+    const screen3 = document.getElementById('screen3');
+    const continueBtn = document.getElementById('continueBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const calendarBtn = document.getElementById('calendarBtn');
+    const celebration = document.getElementById('celebration');
+
+    // ---------- Screen 1: Slideshow ----------
+    const slides = screen1.querySelectorAll('.slide');
+    let currentSlide = 0;
+    const slideInterval = 2000;
+
+    function nextSlide() {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }
+
+    let slideTimer = setInterval(nextSlide, slideInterval);
+
+    continueBtn.addEventListener('click', () => {
+      clearInterval(slideTimer);
+      screen1.classList.add('exiting');
+      setTimeout(() => {
+        screen1.classList.add('hidden');
+        screen2.classList.remove('hidden');
+        setNoButtonInitialPosition();
+      }, 600);
+    });
+
+    // ---------- Screen 2: Evasive No button ----------
+    const noBtnSpacer = document.getElementById('noBtnSpacer');
+    const NO_PROXIMITY_PX = 5;
+    const NO_MOVE_PX = 10;
+    const VIEWPORT_PADDING = 8;
+    let noButtonPositioned = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    function setNoButtonInitialPosition() {
+      const spacerRect = noBtnSpacer.getBoundingClientRect();
+      noBtn.style.left = spacerRect.left + 'px';
+      noBtn.style.top = spacerRect.top + 'px';
+      noButtonPositioned = true;
+    }
+
+    function distanceFromPointToRect(px, py, r) {
+      const cx = Math.max(r.left, Math.min(px, r.right));
+      const cy = Math.max(r.top, Math.min(py, r.bottom));
+      return Math.hypot(px - cx, py - cy);
+    }
+
+    document.addEventListener('pointermove', (e) => {
+      if (screen2.classList.contains('hidden') || !noBtn.parentElement) {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        return;
+      }
+      if (!noButtonPositioned) setNoButtonInitialPosition();
+      const r = noBtn.getBoundingClientRect();
+      const dist = distanceFromPointToRect(e.clientX, e.clientY, r);
+      if (dist <= NO_PROXIMITY_PX) {
+        let dx = e.clientX - lastMouseX;
+        let dy = e.clientY - lastMouseY;
+        if (dx === 0 && dy === 0) {
+          dx = e.clientX - (r.left + r.width / 2);
+          dy = e.clientY - (r.top + r.height / 2);
+        }
+        const len = Math.hypot(dx, dy) || 1;
+        const moveX = (dx / len) * NO_MOVE_PX;
+        const moveY = (dy / len) * NO_MOVE_PX;
+        const minX = VIEWPORT_PADDING;
+        const maxX = window.innerWidth - r.width - VIEWPORT_PADDING;
+        const minY = VIEWPORT_PADDING;
+        const maxY = window.innerHeight - r.height - VIEWPORT_PADDING;
+        noBtn.style.left = Math.max(minX, Math.min(maxX, r.left + moveX)) + 'px';
+        noBtn.style.top = Math.max(minY, Math.min(maxY, r.top + moveY)) + 'px';
+      }
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    // ---------- Screen 2: Yes -> celebrate + Screen 3 ----------
+    function triggerCelebration() {
+      const hearts = '❤️💕💗💖💝';
+      for (let i = 0; i < 25; i++) {
+        const el = document.createElement('span');
+        el.className = 'heart';
+        el.textContent = hearts[i % hearts.length];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.animationDelay = Math.random() * 1.5 + 's';
+        el.style.animationDuration = (3 + Math.random() * 2) + 's';
+        celebration.appendChild(el);
+        setTimeout(() => el.remove(), 5500);
+      }
+      const colors = ['#e8a0a8', '#c76b7a', '#d4a574', '#f5d0d5', '#e8d4a8'];
+      for (let i = 0; i < 60; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        el.style.animationDelay = Math.random() * 0.8 + 's';
+        el.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        celebration.appendChild(el);
+        setTimeout(() => el.remove(), 4500);
+      }
+    }
+
+    const bouquetWrap = document.getElementById('bouquetWrap');
+
+    yesBtn.addEventListener('click', () => {
+      screen2.classList.add('exiting');
+      setTimeout(() => {
+        screen2.classList.add('hidden');
+        screen2_5.classList.remove('hidden');
+      }, 600);
+    });
+
+    // ---------- Screen 2.5: Baccarat dealing ----------
+    const betPlayerBtn = document.getElementById('betPlayerBtn');
+    const betBankerBtn = document.getElementById('betBankerBtn');
+    const playerSlot0 = document.getElementById('playerSlot0');
+    const playerSlot1 = document.getElementById('playerSlot1');
+    const bankerSlot0 = document.getElementById('bankerSlot0');
+    const bankerSlot1 = document.getElementById('bankerSlot1');
+
+    const DEAL_DELAY_MS = 700;
+
+    const cards = [
+      { rank: '10', suit: '♥', red: true },
+      { rank: '2', suit: '♥', red: true },
+      { rank: '2', suit: '♦', red: true },
+      { rank: '7', suit: '♥', red: true }
+    ];
+
+    function renderCardFace(slotEl, card) {
+      const face = slotEl.querySelector('.card-face');
+      face.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>`;
+      face.classList.toggle('red', card.red);
+      slotEl.classList.add('filled', 'deal-in');
+      slotEl.addEventListener('animationend', () => slotEl.classList.remove('deal-in'), { once: true });
+    }
+
+    let lastSelectedSide = 'player';
+
+    function showWinPopup(selectedSide) {
+      lastSelectedSide = selectedSide;
+      const sideLabel = selectedSide === 'player' ? 'Player' : 'Banker';
+      document.getElementById('winPopupText').textContent = `Natural 9, you win! ${sideLabel} won`;
+      const popupEl = document.querySelector('.win-popup');
+      popupEl.style.left = '';
+      popupEl.style.top = '';
+      popupEl.style.transform = 'translate(-50%, -50%)';
+      document.getElementById('winPopupOverlay').classList.add('visible');
+      document.getElementById('winPopupOverlay').setAttribute('aria-hidden', 'false');
+    }
+
+    function runDeal(selectedSide) {
+      betPlayerBtn.disabled = true;
+      betBankerBtn.disabled = true;
+      const isPlayer = selectedSide === 'player';
+      const firstUnselected = isPlayer ? bankerSlot0 : playerSlot0;
+      const firstSelected = isPlayer ? playerSlot0 : bankerSlot0;
+      const secondUnselected = isPlayer ? bankerSlot1 : playerSlot1;
+      const secondSelected = isPlayer ? playerSlot1 : bankerSlot1;
+      const sequence = [
+        [firstUnselected, cards[0]],
+        [firstSelected, cards[1]],
+        [secondUnselected, cards[2]],
+        [secondSelected, cards[3]]
+      ];
+      let step = 0;
+      function dealNext() {
+        if (step >= sequence.length) {
+          setTimeout(() => showWinPopup(selectedSide), 600);
+          return;
+        }
+        const [slotEl, card] = sequence[step];
+        renderCardFace(slotEl, card);
+        step++;
+        setTimeout(dealNext, DEAL_DELAY_MS);
+      }
+      setTimeout(dealNext, DEAL_DELAY_MS);
+    }
+
+    betPlayerBtn.addEventListener('click', () => runDeal('player'));
+    betBankerBtn.addEventListener('click', () => runDeal('banker'));
+
+    // ---------- Win popup Next → morph transition to Screen 3 ----------
+    const winPopupOverlay = document.getElementById('winPopupOverlay');
+    const winPopup = winPopupOverlay.querySelector('.win-popup');
+    const winNextBtn = document.getElementById('winNextBtn');
+
+    (function makeWinPopupDraggable() {
+      let dragOffsetX = 0, dragOffsetY = 0;
+      let isDragging = false;
+
+      function onPointerMove(e) {
+        if (!isDragging) return;
+        winPopup.style.transform = 'none';
+        winPopup.style.left = (e.clientX - dragOffsetX) + 'px';
+        winPopup.style.top = (e.clientY - dragOffsetY) + 'px';
+      }
+
+      function onPointerUp() {
+        isDragging = false;
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+      }
+
+      winPopup.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.win-next-btn')) return;
+        e.preventDefault();
+        const r = winPopup.getBoundingClientRect();
+        dragOffsetX = e.clientX - r.left;
+        dragOffsetY = e.clientY - r.top;
+        winPopup.style.left = r.left + 'px';
+        winPopup.style.top = r.top + 'px';
+        winPopup.style.transform = 'none';
+        isDragging = true;
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+      });
+    })();
+    const morphOverlay = document.getElementById('morphOverlay');
+    const dateReminder = document.getElementById('dateReminder');
+    const morphTarget0 = document.getElementById('morphTarget0');
+    const morphTarget2a = document.getElementById('morphTarget2a');
+    const morphTarget2b = document.getElementById('morphTarget2b');
+    const morphTarget7 = document.getElementById('morphTarget7');
+
+    const MORPH_DURATION_MS = 900;
+    const MORPH_TO_DIGIT_MS = 350;
+
+    function createMorphCard(rect, card, digit) {
+      const el = document.createElement('div');
+      el.className = 'morph-card';
+      el.style.left = rect.left + 'px';
+      el.style.top = rect.top + 'px';
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+      el.innerHTML = `
+        <div class="card-layer ${card.red ? 'red' : ''}">
+          <span class="rank">${card.rank}</span>
+          <span class="suit">${card.suit}</span>
+        </div>
+        <div class="digit-layer">${digit}</div>
+      `;
+      return el;
+    }
+
+    function startMorphTransition() {
+      const isPlayer = lastSelectedSide === 'player';
+      const firstUnselected = isPlayer ? bankerSlot0 : playerSlot0;
+      const firstSelected = isPlayer ? playerSlot0 : bankerSlot0;
+      const secondUnselected = isPlayer ? bankerSlot1 : playerSlot1;
+      const secondSelected = isPlayer ? playerSlot1 : bankerSlot1;
+
+      const sourceSlots = [firstUnselected, firstSelected, secondUnselected, secondSelected];
+      const morphCardsData = [
+        [cards[0], '0'],
+        [cards[1], '2'],
+        [cards[2], '2'],
+        [cards[3], '7']
+      ];
+      const targetEls = [morphTarget0, morphTarget2b, morphTarget2a, morphTarget7];
+
+      const sourceRects = sourceSlots.map(el => el.getBoundingClientRect());
+
+      winPopupOverlay.classList.remove('visible');
+      winPopupOverlay.setAttribute('aria-hidden', 'true');
+
+      screen2_5.classList.add('exiting');
+      setTimeout(() => {
+        screen2_5.classList.add('hidden');
+        screen3.classList.remove('hidden');
+        morphOverlay.style.pointerEvents = '';
+        morphOverlay.setAttribute('aria-hidden', 'false');
+
+        const morphCards = [];
+        for (let i = 0; i < 4; i++) {
+          const card = morphCardsData[i];
+          const el = createMorphCard(sourceRects[i], card[0], card[1]);
+          morphOverlay.appendChild(el);
+          morphCards.push({ el, target: targetEls[i] });
+        }
+
+        setTimeout(() => {
+          const targetRects = targetEls.map(el => el.getBoundingClientRect());
+          morphCards.forEach(({ el }, i) => {
+            const r = targetRects[i];
+            el.style.left = r.left + 'px';
+            el.style.top = r.top + 'px';
+            el.style.width = Math.max(r.width, 20) + 'px';
+            el.style.height = Math.max(r.height, 24) + 'px';
+            el.style.fontSize = (Math.max(r.height, 24) * 0.85) + 'px';
+          });
+        }, 50);
+
+        setTimeout(() => {
+          morphCards.forEach(({ el }) => el.classList.add('show-digit'));
+          setTimeout(() => {
+            morphOverlay.innerHTML = '';
+            morphOverlay.style.pointerEvents = 'none';
+            morphOverlay.setAttribute('aria-hidden', 'true');
+            dateReminder.classList.add('show-date');
+            targetEls.forEach(el => el.classList.add('visible'));
+            triggerCelebration();
+          }, MORPH_TO_DIGIT_MS);
+        }, MORPH_DURATION_MS);
+      }, 400);
+    }
+
+    winNextBtn.addEventListener('click', startMorphTransition);
+
+    // ---------- Calendar link for 2/27/26 ----------
+    const start = new Date('2026-02-27T19:00:00');
+    const end = new Date('2026-02-27T22:00:00');
+    const title = encodeURIComponent("Valentine's Dinner 💕");
+    const startStr = start.toISOString().replace(/[-:]/g, '').slice(0, 15);
+    const endStr = end.toISOString().replace(/[-:]/g, '').slice(0, 15);
+    calendarBtn.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&dates=${startStr}Z/${endStr}Z&text=${title}`;
+  </script>
+</body>
+</html>
